@@ -2,24 +2,27 @@ import utils from "./utils";
 //const colors = ["#e25a53", "#fdb35d", "#fbf5e8", "#a4d9d6"];
 //ALL DATA
 
+const NUMBER_OF_PEOPLE = 1000;
+const INFECTED_PEOPLE = 1;
 const INFECTED_COLOR = "#e25a53";
 const NORMAL_COLOR = "#5FAD41";
 const QUARATINR_COLOR = "#996515";
+
 const MAX_DISTANCE = 0;
-const CANVAS_HEIGHT = 400;
-const CANVAS_WIDTH = 400;
-const LINE_CHART_WIDTH = 300;
-const LINE_CHART_HEIGHT = 300;
+const CANVAS_HEIGHT = 600;
+const CANVAS_WIDTH = 500;
+
+let animation_id;
+let isPaused = true;
 
 const canvas = document.querySelector("#my-canvas");
 let c = canvas.getContext("2d");
 canvas.width = CANVAS_WIDTH;
 canvas.height = CANVAS_HEIGHT;
 
-const line_chart_canvas = document.querySelector("#line-chart");
-let line_chart_c = line_chart_canvas.getContext("2d");
-line_chart_canvas.width = LINE_CHART_WIDTH;
-line_chart_canvas.height = LINE_CHART_HEIGHT;
+let line_chart;
+const _line_chart_canvas = document.querySelector("#line-chart");
+let line_chart_c = _line_chart_canvas.getContext("2d");
 
 const mouse = {
   x: undefined,
@@ -32,11 +35,11 @@ const velocity = {
 };
 
 let circles = [];
-let line_chart_data = [{ x: 1, y: 1 }]; // x : days, y:infected
+//let line_chart_data = [{ x: 1, y: 1 }]; // x : days, y:infected
 let total_infected = 0;
 let days = 0;
 let total_frames = 0; //every 2 secs ie. 120 frames counts as a day
-let frame_to_days = 120;
+let frame_to_days = 60;
 
 // all classes
 class Circle {
@@ -91,7 +94,7 @@ function collide(circle) {
 */
 function init() {
   circles = [];
-  for (let i = 0; i < 50; i++) {
+  for (let i = 0; i < NUMBER_OF_PEOPLE; i++) {
     const r = utils.getRandomArbitrary(2, 4);
     const x = Math.random() * canvas.width;
     const y = Math.random() * canvas.height;
@@ -100,7 +103,46 @@ function init() {
     const dy = (Math.random() - 0.5) * 2;
     circles.push(new Circle(x, y, r, color, dx, dy));
   }
-  fill_infected(1);
+  fill_infected(INFECTED_PEOPLE);
+}
+
+function draw_line_chart() {
+  line_chart = new Chart(line_chart_c, {
+    type: "line",
+    data: {
+      labels: [],
+      datasets: [
+        {
+          label: "INFECTED",
+          data: [],
+          backgroundColor: INFECTED_COLOR,
+          borderColor: "rgb(0,0,0)",
+          borderWidth: 1
+        }
+      ]
+    },
+    scales: {
+      xAxes: [
+        {
+          // aqui controlas la cantidad de elementos en el eje horizontal con autoSkip
+          ticks: {
+            autoSkip: true,
+            maxTicksLimit: 20
+          }
+        }
+      ],
+      yAxes: [
+        {
+          // aqui controlas la cantidad de elementos en el eje horizontal con autoSkip
+          ticks: {
+            autoSkip: true,
+            maxRotation: 0,
+            minRotation: 0
+          }
+        }
+      ]
+    }
+  });
 }
 
 function fill_infected(count) {
@@ -110,7 +152,6 @@ function fill_infected(count) {
 }
 
 function animate() {
-  requestAnimationFrame(animate);
   c.clearRect(0, 0, canvas.width, canvas.height);
   total_infected = 0;
   total_frames++;
@@ -123,8 +164,36 @@ function animate() {
   });
 
   //every frame_to_days we count as a day
-  if (total_frames % frame_to_days === 0) days++;
+  if (total_frames % frame_to_days === 0) {
+    days++;
+    line_chart.data.datasets[0].data.push(total_infected);
+    line_chart.data.labels.push(`day ${days}`);
+    line_chart.update();
+  }
+  animation_id = requestAnimationFrame(animate);
+}
+
+//all controls
+function allEvents(params) {
+  document
+    .querySelector("#start-button")
+    .addEventListener("click", function(params) {
+      if (isPaused) {
+        animate();
+        isPaused = !isPaused;
+      }
+    });
+
+  document
+    .querySelector("#stop-button")
+    .addEventListener("click", function(params) {
+      if (!isPaused) {
+        cancelAnimationFrame(animation_id);
+        isPaused = !isPaused;
+      }
+    });
 }
 
 init();
-animate();
+draw_line_chart();
+allEvents();
