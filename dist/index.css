@@ -1,0 +1,10 @@
+.canvas-container, .charts{
+    display: inline;
+}
+#my-canvas{
+    border: 2px solid 	#353839;
+}
+
+#line-chart{
+    border: 2px solid blue;
+}
