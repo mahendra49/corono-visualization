@@ -105,6 +105,8 @@ const INFECTED_PEOPLE = 1;
 const INFECTED_COLOR = "#e25a53";
 const NORMAL_COLOR = "#5FAD41";
 const QUARATINR_COLOR = "#996515";
+const LOCKDOWN_COUNT = 700;
+const CURRENT_ACTION = "LOCKDOWN(70%)/SOCIAL DISTANCING/MASKS";
 
 const MAX_DISTANCE = -5; //social distance 3
 const CANVAS_HEIGHT = 570;
@@ -125,11 +127,6 @@ let line_chart_c = _line_chart_canvas.getContext("2d");
 const mouse = {
   x: undefined,
   y: undefined
-};
-
-const velocity = {
-  dx: 2,
-  dy: 2
 };
 
 let circles = [];
@@ -177,6 +174,14 @@ class Circle {
   }
 }
 
+//simulate lockdown
+function lockdown(count) {
+  for (let i = 0; i < count; i++) {
+    circles[i].dx = 0;
+    circles[i].dy = 0;
+  }
+}
+
 function collide(circle) {
   for (let i of circles) {
     if (i == circle) continue;
@@ -202,6 +207,7 @@ function init() {
     circles.push(new Circle(x, y, r, color, dx, dy));
   }
   fill_infected(INFECTED_PEOPLE);
+  lockdown(LOCKDOWN_COUNT);
 }
 
 function draw_line_chart() {
@@ -211,7 +217,7 @@ function draw_line_chart() {
       labels: [],
       datasets: [
         {
-          label: "INFECTED - WITH SOCIAL DISTANCING/MASKS",
+          label: `INFECTED - ${CURRENT_ACTION}`,
           data: [],
           backgroundColor: INFECTED_COLOR,
           borderColor: "rgb(0,0,0)",
