@@ -106,8 +106,8 @@ const INFECTED_COLOR = "#e25a53";
 const NORMAL_COLOR = "#5FAD41";
 const QUARATINR_COLOR = "#996515";
 
-const MAX_DISTANCE = 0;
-const CANVAS_HEIGHT = 600;
+const MAX_DISTANCE = -5; //social distance 3
+const CANVAS_HEIGHT = 570;
 const CANVAS_WIDTH = 500;
 
 let animation_id;
@@ -211,7 +211,7 @@ function draw_line_chart() {
       labels: [],
       datasets: [
         {
-          label: "INFECTED",
+          label: "INFECTED - WITH SOCIAL DISTANCING/MASKS",
           data: [],
           backgroundColor: INFECTED_COLOR,
           borderColor: "rgb(0,0,0)",
